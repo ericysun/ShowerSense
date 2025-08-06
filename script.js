@@ -137,6 +137,85 @@ function showCalendarSuccess() {
     }, 4000);
 }
 
+function addToAppleCalendar() {
+    // Create the event details
+    const eventTitle = '🚿 Daily Shower';
+    const eventDescription = 'Time for your daily shower! Maintained by ShowerSense AI';
+    const startTime = '21:00'; // 9:00 PM
+    const endTime = '21:30';   // 9:30 PM
+    
+    // Format the current date for the start
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    
+    // Create the Apple Calendar URL
+    const startDateTime = `${year}${month}${day}T${startTime}00`;
+    const endDateTime = `${year}${month}${day}T${endTime}00`;
+    
+    // Apple Calendar uses a different format - we'll create an .ics file
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//ShowerSense AI//Daily Shower Event//EN
+BEGIN:VEVENT
+UID:showersense-${Date.now()}@showersense.ai
+DTSTAMP:${formatDateForICS(new Date())}
+DTSTART:${startDateTime}
+DTEND:${endDateTime}
+SUMMARY:${eventTitle}
+DESCRIPTION:${eventDescription}
+RRULE:FREQ=DAILY
+END:VEVENT
+END:VCALENDAR`;
+    
+    // Create and download the .ics file
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'daily-shower-reminder.ics';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    // Show success message
+    showAppleCalendarSuccess();
+}
+
+function formatDateForICS(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
+}
+
+function showAppleCalendarSuccess() {
+    const successMessage = document.createElement('div');
+    successMessage.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in max-w-sm';
+    successMessage.innerHTML = `
+        <div class="flex items-center">
+            <span class="text-2xl mr-2">🍎</span>
+            <div>
+                <div class="font-bold">Calendar File Downloaded!</div>
+                <div class="text-sm opacity-90">Open the .ics file to add to Apple Calendar</div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(successMessage);
+    
+    // Remove the message after 4 seconds
+    setTimeout(() => {
+        successMessage.remove();
+    }, 4000);
+}
+
 
 
 // Add some fun Easter eggs
