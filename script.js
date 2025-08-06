@@ -89,6 +89,54 @@ function resetAnalysis() {
     startLoadingAnimation();
 }
 
+function addToGoogleCalendar() {
+    // Create the event details
+    const eventTitle = '🚿 Daily Shower';
+    const eventDescription = 'Time for your daily shower! Maintained by ShowerSense AI';
+    const startTime = '21:00'; // 9:00 PM
+    const endTime = '21:30';   // 9:30 PM
+    
+    // Format the current date for the start
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    
+    // Create the Google Calendar URL with recurring event
+    const startDateTime = `${year}${month}${day}T${startTime}00`;
+    const endDateTime = `${year}${month}${day}T${endTime}00`;
+    
+    // Google Calendar URL with daily recurrence
+    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${startDateTime}/${endDateTime}&details=${encodeURIComponent(eventDescription)}&recur=RRULE:FREQ=DAILY&sf=true&output=xml`;
+    
+    // Open Google Calendar in a new tab
+    window.open(calendarUrl, '_blank');
+    
+    // Show success message
+    showCalendarSuccess();
+}
+
+function showCalendarSuccess() {
+    const successMessage = document.createElement('div');
+    successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in max-w-sm';
+    successMessage.innerHTML = `
+        <div class="flex items-center">
+            <span class="text-2xl mr-2">✅</span>
+            <div>
+                <div class="font-bold">Added to Calendar!</div>
+                <div class="text-sm opacity-90">Daily shower reminder set for 9:00-9:30 PM</div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(successMessage);
+    
+    // Remove the message after 4 seconds
+    setTimeout(() => {
+        successMessage.remove();
+    }, 4000);
+}
+
 
 
 // Add some fun Easter eggs
