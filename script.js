@@ -154,7 +154,7 @@ function addToAppleCalendar() {
     const startDateTime = `${year}${month}${day}T${startTime}00`;
     const endDateTime = `${year}${month}${day}T${endTime}00`;
     
-    // Apple Calendar uses a different format - we'll create an .ics file
+    // Try multiple approaches for better compatibility
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//ShowerSense AI//Daily Shower Event//EN
@@ -169,19 +169,37 @@ RRULE:FREQ=DAILY
 END:VEVENT
 END:VCALENDAR`;
     
-    // Create and download the .ics file
+    // Detect if user is on iOS and try different approaches
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    
+    if (isIOS) {
+        // For iOS devices, try to trigger the "Open in Calendar" prompt
+        const calendarUrl = `data:text/calendar;charset=utf8,${encodeURIComponent(icsContent)}`;
+        const tempLink = document.createElement('a');
+        tempLink.href = calendarUrl;
+        tempLink.style.display = 'none';
+        document.body.appendChild(tempLink);
+        
+        try {
+            tempLink.click();
+            document.body.removeChild(tempLink);
+            return;
+        } catch (e) {
+            document.body.removeChild(tempLink);
+            // Fall back to file download
+        }
+    }
+    
+    // For all other devices (including Mac): Create and download the .ics file
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'daily-shower-reminder.ics';
+    link.download = 'showersense-daily-shower.ics';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
-    // Show success message
-    showAppleCalendarSuccess();
 }
 
 function formatDateForICS(date) {
@@ -196,24 +214,39 @@ function formatDateForICS(date) {
 }
 
 function showAppleCalendarSuccess() {
+    const isAppleDevice = /iPad|iPhone|iPod|Mac/.test(navigator.userAgent);
+    
     const successMessage = document.createElement('div');
     successMessage.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in max-w-sm';
-    successMessage.innerHTML = `
-        <div class="flex items-center">
-            <span class="text-2xl mr-2">🍎</span>
-            <div>
-                <div class="font-bold">Calendar File Downloaded!</div>
-                <div class="text-sm opacity-90">Open the .ics file to add to Apple Calendar</div>
+    
+    if (isAppleDevice) {
+        successMessage.innerHTML = `
+            <div class="flex items-center">
+                <span class="text-2xl mr-2">🍎</span>
+                <div>
+                    <div class="font-bold">Calendar Event Ready!</div>
+                    <div class="text-sm opacity-90">Tap "Open in Calendar" if prompted, or check Downloads folder</div>
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    } else {
+        successMessage.innerHTML = `
+            <div class="flex items-center">
+                <span class="text-2xl mr-2">📅</span>
+                <div>
+                    <div class="font-bold">Calendar File Downloaded!</div>
+                    <div class="text-sm opacity-90">Open the .ics file to add to your calendar app</div>
+                </div>
+            </div>
+        `;
+    }
     
     document.body.appendChild(successMessage);
     
-    // Remove the message after 4 seconds
+    // Remove the message after 5 seconds (longer for instructions)
     setTimeout(() => {
         successMessage.remove();
-    }, 4000);
+    }, 5000);
 }
 
 
