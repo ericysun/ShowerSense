@@ -1,4 +1,4 @@
-<img width="684" height="181" alt="showerSenseBanner" src="https://github.com/user-attachments/assets/2045d392-8eef-4f30-83be-40c0f82388da" />
+<img width="868" height="226" alt="showerSenseBanner" src="https://github.com/user-attachments/assets/eba83c6b-cbc2-4889-a071-8b804f936cd0" />
 
 # ShowerSense
 ### AI-Powered Shower Scheduler
